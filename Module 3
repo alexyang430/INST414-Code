@@ -1,0 +1,33 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+df = pd.read_csv('twitchdata-update.csv')
+
+if 'Followers gained' in df.columns:
+    df = df.drop(columns=['Followers gained'])
+elif 'Views gained' in df.columns:
+    df = df.drop(columns=['Views gained'])
+elif 'Partnered' in df.columns:
+    df = df.drop(columns=['Partnered'])
+elif 'Mature' in df.columns:
+    df = df.drop(columns=['Mature'])
+elif 'Language' in df.columns:
+    df = df.drop(columns=['Language'])
+
+df_features = df[['Watch time(Minutes)', 'Stream time(minutes)', 'Peak viewers', 'Average viewers']]
+df_features = df_features.replace([np.inf, -np.inf], 0).fillna(0)
+
+scaler = StandardScaler()
+df_normalize = scaler.fit_transform(df_features)
+similarity_matrix = cosine_similarity(df_normalize)
+
+xqc_channel_rank = 0
+similarity_score = similarity_matrix[xqc_channel_rank]
+
+top_10_similar_ranks = similarity_score.argsort()[-11:-1][::-1]
+top_10_similar_channels = df.iloc[top_10_similar_ranks].copy()
+top_10_similar_channels.loc[:, 'Similarity'] = similarity_score[top_10_similar_ranks]
+
+print(top_10_similar_channels[['Channel', 'Watch time(Minutes)', 'Stream time(minutes)', 'Peak viewers', 'Average viewers']])
