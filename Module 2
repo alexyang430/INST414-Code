@@ -1,0 +1,35 @@
+import pandas as pd
+df = pd.read_csv("stations.csv")
+arrival_counts = df['subregion'].value_counts()
+arrival_counts
+
+line_counts = df['line_names'].value_counts()
+line_counts
+
+import networkx as nx
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+df.fillna(0, inplace=True)
+
+similarity_matrix = cosine_similarity(df)
+
+G = nx.Graph()
+stations = df["station"].values
+for station in stations:
+    G.add_node(station)
+
+for i in range(len(stations)):
+    for j in range(i + 1, len(stations)):
+        if similarity_matrix[i, j] > 0.2:
+            G.add_edge(stations[i], stations[j], weight=similarity_matrix[i, j])
+
+
+degree_centrality = nx.degree_centrality(G)
+
+pos = nx.spring_layout(G, seed=42, k=0.3)  
+centrality_values = np.array(list(degree_centrality.values()))
+node_sizes = 500 * (centrality_values - centrality_values.min()) / (centrality_values.max() - centrality_values.min()) + 100
+edges, weights = zip(*nx.get_edge_attributes(G, "weight").items())
