@@ -1,0 +1,21 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+df = pd.read_csv('nyc_temperature.csv')
+
+if 'HDD' in df.columns:
+    df = df.drop(columns=['HDD'])
+elif 'CDD' in df.columns:
+    df = df.drop(columns=['CDD'])
+elif 'departure' in df.columns:
+    df = df.drop(columns=['departure'])
+elif 'new_snow' in df.columns:
+    df = df.drop(columns=['new_snow'])
+elif 'snow_depth' in df.columns:
+    df = df.drop(columns=['snow_depth'])
+
+
+df["precipitation"] = df["precipitation"].replace('T', 0)
+df
