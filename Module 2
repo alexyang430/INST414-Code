@@ -1,11 +1,3 @@
-import pandas as pd
-df = pd.read_csv("stations.csv")
-arrival_counts = df['subregion'].value_counts()
-arrival_counts
-
-line_counts = df['line_names'].value_counts()
-line_counts
-
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,6 +5,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 df.fillna(0, inplace=True)
+
+df['Counts'] = df.groupby(['station'])['line_names'].transform('count')
+
+cleaned = pd.DataFrame(df, columns=df['Counts'], index=df["station"])
 
 similarity_matrix = cosine_similarity(df)
 
